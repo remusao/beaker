@@ -484,11 +484,12 @@ class View {
   // live reloading
   // =
 
-  toggleLiveReloading (enable) {
+
+  async toggleLiveReloading (enable) {
     if (typeof enable === 'undefined') {
       enable = !this.liveReloadEvents
     }
-    if (!enable) {
+    if (this.liveReloadEvents) {
       this.liveReloadEvents.close()
       this.liveReloadEvents = false
     } else if (this.datInfo) {
@@ -496,7 +497,7 @@ class View {
       if (!archive) return
 
       let {version} = parseDatURL(this.url)
-      let {checkoutFS} = beakerCore.dat.library.getArchiveCheckout(archive, version)
+      let {checkoutFS} = await beakerCore.dat.library.getArchiveCheckout(archive, version)
       this.liveReloadEvents = checkoutFS.pda.watch()
 
       let event = (this.datInfo.isOwner) ? 'changed' : 'invalidated'
@@ -629,7 +630,7 @@ class View {
     this.donateLinkHref = _get(this, 'datInfo.links.payment.0.href')
     if (this.previewMode) {
       let archive = beakerCore.dat.library.getArchive(key)
-      let diff = await beakerCore.dat.library.getDaemon().fs_diffListing(archive, {compareContent: true, shallow: true})
+      let diff = [] // TODO await beakerCore.dat.library.getDaemon().fs_diffListing(archive, {compareContent: true, shallow: true})
       this.uncommittedChanges = diff ? diff.length : 0
     }
     let userSession = getUserSessionFor(this.browserWindow.webContents)
